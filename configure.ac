@@ -3,8 +3,6 @@ define([pkgversion], esyscmd([sh -c "grep Version: DESCRIPTION | cut -d' ' -f2 |
 AC_INIT([rgdal],[pkgversion],[Roger.Bivand@nhh.no])
 AC_CONFIG_SRCDIR(src/gdal-bindings.cpp)
 
-# AC_PROG_CXX()
-
 # find R home and set correct compiler + flags
 : ${R_HOME=`R RHOME`}
 if test -z "${R_HOME}"; then
@@ -16,13 +14,11 @@ RBIN="${R_HOME}/bin/R"
 # pick all flags for testing from R
 : ${CC=`"${RBIN}" CMD config CC`}
 : ${CXX=`"${RBIN}" CMD config CXX`}
-#: ${CPP=`"${RBIN}" CMD config CPP`}
 : ${CFLAGS=`"${RBIN}" CMD config CFLAGS`}
 : ${CPPFLAGS=`"${RBIN}" CMD config CPPFLAGS`}
 : ${CXXFLAGS=`"${RBIN}" CMD config CXXFLAGS`}
 : ${LDFLAGS=`"${RBIN}" CMD config LDFLAGS`}
-# AC_SUBST([CC],["clang"])
-# AC_SUBST([CXX],["clang++"])
+
 AC_MSG_NOTICE([CC: ${CC}])
 AC_MSG_NOTICE([CXX: ${CXX}])
 AC_MSG_NOTICE([CFLAGS: ${CFLAGS}])
@@ -35,27 +31,11 @@ AC_ARG_ENABLE([loadflags],
     [loadflags=${enableval}], 
     [loadflags="yes"])
 
-#echo "loadflags: $loadflags"
-
 if test "${loadflags}" = "no" ; then
     LDFLAGS=""
     AC_MSG_NOTICE(value of R CMD config LDFLAGS not used for configure)
 fi
 AC_MSG_NOTICE([LDFLAGS: ${LDFLAGS}])
-
-#CXX_17
-
-R_VERSION=`echo 'o <- R.version; cat(paste0(o$major, ".", o$minor))' | ${RBIN} --vanilla --slave`
-#AC_MSG_NOTICE([R_VERSION is: ${R_VERSION}])
-R_MINOR=`echo $R_VERSION | cut -f2 -d"."`
-R_MAJOR=`echo $R_VERSION | cut -f1 -d"."`
-#AC_MSG_NOTICE([R_MAJOR is: ${R_MAJOR}, R_MINOR is: ${R_MINOR}])
-
-#if test ${R_MINOR} -ge 4; then
-#: ${CXX=`"${RBIN}" CMD config CXX17`}
-#else
-#: ${CXX=`"${RBIN}" CMD config CXX1X`}
-#fi
 
 CXX17=`"${RBIN}" CMD config CXX17`
 CXX17STD=`"${RBIN}" CMD config CXX17STD`
@@ -67,21 +47,16 @@ CXX="${CXX17} ${CXX17STD}"
 AC_MSG_NOTICE([CXX is: ${CXX}])
 
 if test -n "${CXX17}"; then
-HAVE_CXX17=1
+  HAVE_CXX17=1
 else
-HAVE_CXX17=0
+  HAVE_CXX17=0
 fi
 
-#HAVE_CXX17=1
-
-#m4_include([inst/m4/ax_cxx_compile_stdcxx.m4])
-#AX_CXX_COMPILE_STDCXX([11], [ext], [optional])
 if test [${HAVE_CXX17} = 1] ; then
   AC_MSG_NOTICE([C++17 support available])
 else
   AC_MSG_NOTICE([C++17 support not available])
 fi
-
 
 AC_MSG_NOTICE([${PACKAGE_NAME}: ${PACKAGE_VERSION}])
 
@@ -89,56 +64,34 @@ AC_CHECK_FILE([/usr/bin/svnversion],
  [SVN_VERSION=`svnversion -n '.'`],
  [SVN_VERSION=""])
 
-#SVN_VERSION=`svnversion -n '.'`
-#if test "${SVN_VERSION}" != "exported" -a test -n "${SVN_VERSION}" -a test "${SVN_VERSION}" != "Unversioned directory"; then
-if test "${SVN_VERSION}" != "exported" && test -n "${SVN_VERSION}" && test "${SVN_VERSION}" != "Unversioned directory"; then  echo "${SVN_VERSION}" > inst/SVN_VERSION
+if test "${SVN_VERSION}" != "exported" && test -n "${SVN_VERSION}" && test "${SVN_VERSION}" != "Unversioned directory"; then
+  echo "${SVN_VERSION}" > inst/SVN_VERSION
 else
   SVN_VERSION=`cat inst/SVN_VERSION | tr -d '\n'`
 fi
 AC_MSG_NOTICE([svn revision: ${SVN_VERSION}])
 
-#GDAL
-
 GDAL_CONFIG="gdal-config"
-
-GDAL_CONFIG_SET="no"
 
 AC_ARG_WITH([gdal-config],
     AS_HELP_STRING([--with-gdal-config=GDAL_CONFIG],[the location of gdal-config]),
            [gdal_config=$withval])
 if test [ -n "$gdal_config" ] ; then
     GDAL_CONFIG_SET="yes"
-    AC_SUBST([GDAL_CONFIG],["${gdal_config}"])
+    GDAL_CONFIG="${gdal_config}"
     AC_MSG_NOTICE(gdal-config set to $GDAL_CONFIG)
-fi
-
-if test ["$GDAL_CONFIG_SET" = "no"] ; then
-  AC_PATH_PROG([GDAL_CONFIG], ["$GDAL_CONFIG"],["no"])
-  if test ["$GDAL_CONFIG" = "no"] ; then
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([gdal-config not found or not executable.])
-  fi
 else
-  AC_MSG_CHECKING(gdal-config exists)
-  if test -r "${GDAL_CONFIG}"; then
-    AC_MSG_RESULT(yes)
-  else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([gdal-config not found - configure argument error.])
-  fi
-  AC_MSG_CHECKING(gdal-config executable)
-  if test -x "${GDAL_CONFIG}"; then
-    AC_MSG_RESULT(yes)
-  else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([gdal-config not executable.])
-  fi
+    AC_PATH_PROG([GDAL_CONFIG], [gdal-config], [no])
 fi
 
+if test ["$GDAL_CONFIG" = "no"] ; then
+  AC_MSG_ERROR([gdal-config not found or not executable. Please install GDAL or make sure gdal-config is in your PATH.])
+else
+  AC_MSG_NOTICE([gdal-config found: ${GDAL_CONFIG}])
+fi
 
-AC_MSG_CHECKING(gdal-config usability)
-if test `${GDAL_CONFIG} --version`;
-then
+AC_MSG_CHECKING([gdal-config usability])
+if $GDAL_CONFIG --version > /dev/null 2>&1; then
   GDAL_CPPFLAGS=`${GDAL_CONFIG} --cflags`
   GDAL_LIBS=`${GDAL_CONFIG} --libs`
   GDAL_VERSION=`${GDAL_CONFIG} --version`
@@ -147,25 +100,13 @@ then
   gdalok=yes
   AC_MSG_RESULT(yes)
 else
-      AC_MSG_RESULT(no)
-	echo "Error: gdal-config not found"
-	echo "The gdal-config script distributed with GDAL could not be found."
-	echo "If you have not installed the GDAL libraries, you can"
-	echo "download the source from  http://www.gdal.org/"
-	echo "If you have installed the GDAL libraries, then make sure that"
-	echo "gdal-config is in your path. Try typing gdal-config at a"
-	echo "shell prompt and see if it runs. If not, use:"
-	echo " --configure-args='--with-gdal-config=/usr/local/bin/gdal-config'"
-	echo "with appropriate values for your installation."
-	echo ""
-
-	exit 1
+  AC_MSG_RESULT(no)
+  AC_MSG_ERROR([gdal-config is not usable.])
 fi
 
-#AC_MSG_NOTICE([GDAL_LIBS is: ${GDAL_LIBS}])
-#AC_MSG_NOTICE([GDAL_DEP_LIBS is: ${GDAL_DEP_LIBS}])
-
 AC_MSG_NOTICE([GDAL: ${GDAL_VERSION}])
+
+# The rest of the script continues unchanged...
 #GDAL_VER_DOT=`echo $GDAL_VERSION | tr -d "."`
 GDAL_MAJOR=`echo $GDAL_VERSION | cut -f1 -d"."`
 GDAL_MINOR=`echo $GDAL_VERSION | cut -f2 -d"."`
