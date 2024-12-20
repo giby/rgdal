@@ -115,23 +115,10 @@ if test -n "$PROJ_PC_DIR" ; then
     export PKG_CONFIG_PATH=$PROJ_PC_DIR
     AC_MSG_NOTICE([Using proj.pc from: $PROJ_PC_DIR])
 else
-    # Fallback to automatic detection
-    PROJ_PC_PATHS=("/opt/local/lib/proj9/lib/pkgconfig" "/opt/local/lib/proj8/lib/pkgconfig" "/opt/local/lib/proj5/lib/pkgconfig" "/usr/local/lib-old/pkgconfig")
-    for path in "${PROJ_PC_PATHS[@]}"; do
-      if test -f "$path/proj.pc"; then
-        export PKG_CONFIG_PATH=$path
-        AC_MSG_NOTICE([Using proj.pc from: $path])
-        break
-      fi
-    done
+    AC_MSG_NOTICE([No --with-proj-pc specified, continuing with default PKG_CONFIG_PATH])
 fi
 
 # Check if proj.pc was set and usable
-if test -z "$PKG_CONFIG_PATH"; then
-  AC_MSG_ERROR([proj.pc not found in any known locations. Please install PROJ or set PKG_CONFIG_PATH manually.])
-fi
-
-# Check PROJ configuration
 AC_MSG_CHECKING([pkg-config proj exists])
 if pkg-config proj --exists; then
   AC_MSG_NOTICE([pkg-config proj exists, will use it])
@@ -215,7 +202,7 @@ AC_ARG_WITH([proj-share],
     AS_HELP_STRING([--with-proj-share=SHARE_PATH],[the location of proj metadata files]),
                [proj_share_path=$withval])
 if test [ -n "$proj_share_path" ] ; then
-    AC_MSG_NOTICE([PROJ_LIB: ${proj_share_path}])
+    AC_MSG_NOTICE([PROJ LIB: ${proj_share_path}])
 fi
 
 # Finalize configuration
