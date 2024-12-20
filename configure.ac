@@ -135,8 +135,8 @@ fi
 AC_MSG_CHECKING([pkg-config proj exists])
 if pkg-config proj --exists; then
   AC_MSG_NOTICE([pkg-config proj exists, will use it])
-  PROJ_CPPFLAGS=$(pkg-config proj --cflags)
-  PROJ_LIBS=$(pkg-config proj --libs)
+  PROJ_CPPFLAGS=$(pkg-config --cflags proj)
+  PROJ_LIBS=$(pkg-config --libs proj)
 else
   AC_MSG_NOTICE([pkg-config proj not available])
   PROJ_CPPFLAGS="-I/opt/local/include"
