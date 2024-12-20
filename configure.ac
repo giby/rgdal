@@ -106,16 +106,25 @@ fi
 
 AC_MSG_NOTICE([GDAL: ${GDAL_VERSION}])
 
-# Automatically determine the best proj.pc
-PROJ_PC_PATHS=("/opt/local/lib/proj9/lib/pkgconfig" "/opt/local/lib/proj8/lib/pkgconfig" "/opt/local/lib/proj5/lib/pkgconfig" "/usr/local/lib-old/pkgconfig")
+# Add argument to specify the location of proj.pc
+AC_ARG_WITH([proj-pc],
+    AS_HELP_STRING([--with-proj-pc=DIR],[location of proj.pc]),
+           [PROJ_PC_DIR=$withval])
 
-for path in "${PROJ_PC_PATHS[@]}"; do
-  if test -f "$path/proj.pc"; then
-    export PKG_CONFIG_PATH=$path
-    AC_MSG_NOTICE([Using proj.pc from: $path])
-    break
-  fi
-done
+if test -n "$PROJ_PC_DIR" ; then
+    export PKG_CONFIG_PATH=$PROJ_PC_DIR
+    AC_MSG_NOTICE([Using proj.pc from: $PROJ_PC_DIR])
+else
+    # Fallback to automatic detection
+    PROJ_PC_PATHS=("/opt/local/lib/proj9/lib/pkgconfig" "/opt/local/lib/proj8/lib/pkgconfig" "/opt/local/lib/proj5/lib/pkgconfig" "/usr/local/lib-old/pkgconfig")
+    for path in "${PROJ_PC_PATHS[@]}"; do
+      if test -f "$path/proj.pc"; then
+        export PKG_CONFIG_PATH=$path
+        AC_MSG_NOTICE([Using proj.pc from: $path])
+        break
+      fi
+    done
+fi
 
 # Check if proj.pc was set and usable
 if test -z "$PKG_CONFIG_PATH"; then
@@ -136,9 +145,6 @@ fi
 
 AC_MSG_NOTICE([PROJ CPP flags: ${PROJ_CPPFLAGS}])
 AC_MSG_NOTICE([PROJ LIBS: ${PROJ_LIBS}])
-
-# Continue with the rest of the script...
-# PROJ checking and other configurations continue here as in your original script
 
 # Check PROJ header API
 AC_MSG_CHECKING([PROJ header API])
