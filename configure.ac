@@ -106,23 +106,39 @@ fi
 
 AC_MSG_NOTICE([GDAL: ${GDAL_VERSION}])
 
-# Automatically locate and choose the best proj.pc file
-PKG_CONFIG_PATHS="/opt/local/lib/proj9/lib/pkgconfig /opt/local/lib/proj8/lib/pkgconfig /opt/local/lib/proj5/lib/pkgconfig /usr/local/lib-old/pkgconfig"
-for path in $PKG_CONFIG_PATHS; do
+# Automatically determine the best proj.pc
+PROJ_PC_PATHS=("/opt/local/lib/proj9/lib/pkgconfig" "/opt/local/lib/proj8/lib/pkgconfig" "/opt/local/lib/proj5/lib/pkgconfig" "/usr/local/lib-old/pkgconfig")
+
+for path in "${PROJ_PC_PATHS[@]}"; do
   if test -f "$path/proj.pc"; then
-    export PKG_CONFIG_PATH="$path"
+    export PKG_CONFIG_PATH=$path
     AC_MSG_NOTICE([Using proj.pc from: $path])
     break
   fi
 done
 
-PROJ_CONFIG="pkg-config proj"
+# Check if proj.pc was set and usable
+if test -z "$PKG_CONFIG_PATH"; then
+  AC_MSG_ERROR([proj.pc not found in any known locations. Please install PROJ or set PKG_CONFIG_PATH manually.])
+fi
 
-if `$PROJ_CONFIG --exists` ; then
+# Check PROJ configuration
+AC_MSG_CHECKING([pkg-config proj exists])
+if pkg-config proj --exists; then
   AC_MSG_NOTICE([pkg-config proj exists, will use it])
-  proj_config_ok=yes
+  PROJ_CPPFLAGS=$(pkg-config proj --cflags)
+  PROJ_LIBS=$(pkg-config proj --libs)
 else
   AC_MSG_NOTICE([pkg-config proj not available])
+  PROJ_CPPFLAGS="-I/opt/local/include"
+  PROJ_LIBS="-lproj"
+fi
+
+AC_MSG_NOTICE([PROJ CPP flags: ${PROJ_CPPFLAGS}])
+AC_MSG_NOTICE([PROJ LIBS: ${PROJ_LIBS}])
+
+# Continue with the rest of the script...
+# PROJ checking and other configurations continue here as in your original script
   echo "  set PKG_CONFIG_PATH to the directory containing proj.pc"
   proj_config_ok=no
 fi
