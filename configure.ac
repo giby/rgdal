@@ -71,7 +71,8 @@ else
 fi
 AC_MSG_NOTICE([svn revision: ${SVN_VERSION}])
 
-GDAL_CONFIG="gdal-config"
+# Explicitly set the path to gdal-config
+GDAL_CONFIG="/opt/local/bin/gdal-config"
 
 AC_ARG_WITH([gdal-config],
     AS_HELP_STRING([--with-gdal-config=GDAL_CONFIG],[the location of gdal-config]),
@@ -107,8 +108,7 @@ fi
 AC_MSG_NOTICE([GDAL: ${GDAL_VERSION}])
 
 # Continue with the rest of the script...
-
-# The rest of the script continues unchanged...
+# The rest of your script remains unchanged...
 #GDAL_VER_DOT=`echo $GDAL_VERSION | tr -d "."`
 GDAL_MAJOR=`echo $GDAL_VERSION | cut -f1 -d"."`
 GDAL_MINOR=`echo $GDAL_VERSION | cut -f2 -d"."`
