@@ -101,10 +101,12 @@ if $GDAL_CONFIG --version > /dev/null 2>&1; then
   AC_MSG_RESULT(yes)
 else
   AC_MSG_RESULT(no)
-  AC_MSG_ERROR([gdal-config is not usable.])
+  AC_MSG_ERROR([gdal-config is not usable. Please ensure GDAL is correctly installed.])
 fi
 
 AC_MSG_NOTICE([GDAL: ${GDAL_VERSION}])
+
+# Continue with the rest of the script...
 
 # The rest of the script continues unchanged...
 #GDAL_VER_DOT=`echo $GDAL_VERSION | tr -d "."`
