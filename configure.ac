@@ -139,3 +139,84 @@ AC_MSG_NOTICE([PROJ LIBS: ${PROJ_LIBS}])
 
 # Continue with the rest of the script...
 # PROJ checking and other configurations continue here as in your original script
+
+# Check PROJ header API
+AC_MSG_CHECKING([PROJ header API])
+if echo "#include <proj.h>" | ${CC} -E - ${PROJ_CPPFLAGS} > /dev/null 2>&1; then
+  AC_MSG_NOTICE([Using proj.h])
+  PROJ_API="proj.h"
+  PROJ6="yes"
+elif echo "#include <proj_api.h>" | ${CC} -E - ${PROJ_CPPFLAGS} > /dev/null 2>&1; then
+  AC_MSG_NOTICE([Using proj_api.h])
+  PROJ_API="proj_api.h"
+  PROJ6="no"
+else
+  AC_MSG_ERROR([Neither proj.h nor proj_api.h found in include path])
+fi
+
+# Check PROJ version
+if test "${PROJ6}" = "yes"; then
+  PROJ_VERSION_H=$(echo "#include <proj.h>" | ${CC} -E - ${PROJ_CPPFLAGS} - | grep -o 'PROJ_VERSION [0-9.]*' | cut -d' ' -f2)
+else
+  PROJ_VERSION_H=$(echo "#include <proj_api.h>" | ${CC} -E - ${PROJ_CPPFLAGS} - | grep -o 'PJ_VERSION [0-9]*' | cut -d' ' -f2)
+fi
+
+if test -z "${PROJ_VERSION_H}"; then
+  AC_MSG_ERROR([Failed to determine PROJ version from headers])
+else
+  AC_MSG_NOTICE([Determined PROJ version from headers: ${PROJ_VERSION_H}])
+fi
+
+# Additional checks for compatibility between GDAL and PROJ versions
+GDAL_MAJOR=$(echo ${GDAL_VERSION} | cut -d'.' -f1)
+GDAL_MINOR=$(echo ${GDAL_VERSION} | cut -d'.' -f2)
+PROJ_VERSION_DOT=$(echo ${PROJ_VERSION_H} | tr -d '.')
+
+AC_MSG_CHECKING([Using GDAL < 3 with PROJ >= 6])
+if test ${GDAL_MAJOR} -lt 3 && test ${PROJ_VERSION_DOT} -ge 600; then
+  AC_MSG_RESULT(yes)
+  if test ${PROJ_API} = "proj.h"; then
+    AC_MSG_ERROR([GDAL >= 3 should be used with PROJ >= 6, use --with-proj_api="proj_api.h" for deprecated API])
+  else
+    NEW_PROJ_WITH_OLD_GDAL="yes"
+    AC_MSG_WARN([GDAL >= 3 should be used with PROJ >= 6])
+  fi
+else
+  AC_MSG_RESULT(no)
+fi
+
+if test "${PROJ6}" = "yes" && test "${PROJ_API}" = "proj_api.h"; then
+  PROJ_CPPFLAGS="${PROJ_CPPFLAGS} -DACCEPT_USE_OF_DEPRECATED_PROJ_API_H"
+fi
+
+AC_MSG_CHECKING([PROJ version >= 4.8.0])
+if test ${PROJ_VERSION_DOT} -lt 480 ; then
+  AC_MSG_RESULT(no)
+  AC_MSG_ERROR([upgrade PROJ to 4.8.0 or later])
+else
+  AC_MSG_RESULT(yes)
+fi
+
+AC_MSG_CHECKING([projects.h presence and usability])
+if echo "#include <projects.h>" | ${CC} -E - ${PROJ_CPPFLAGS} > /dev/null 2>&1; then
+  AC_MSG_RESULT(yes)
+else
+  AC_MSG_RESULT(no)
+  AC_MSG_ERROR([projects.h not found in standard or given locations.])
+fi
+
+AC_ARG_WITH([proj-share],
+    AS_HELP_STRING([--with-proj-share=SHARE_PATH],[the location of proj metadata files]),
+               [proj_share_path=$withval])
+if test [ -n "$proj_share_path" ] ; then
+    AC_MSG_NOTICE([PROJ_LIB: ${proj_share_path}])
+fi
+
+# Finalize configuration
+AC_SUBST([PKG_CPPFLAGS], ["${PROJ_CPPFLAGS} ${GDAL_CPPFLAGS}"])
+AC_SUBST([PKG_LIBS], ["${PROJ_LIBS} ${GDAL_LIBS} ${GDAL_DEP_LIBS}"])
+AC_MSG_NOTICE([Package CPP flags: ${PKG_CPPFLAGS}])
+AC_MSG_NOTICE([Package LIBS: ${PKG_LIBS}])
+
+AC_CONFIG_FILES(src/Makevars)
+AC_OUTPUT
