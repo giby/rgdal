@@ -71,21 +71,20 @@ else
 fi
 AC_MSG_NOTICE([svn revision: ${SVN_VERSION}])
 
-# Explicitly set the path to gdal-config
-GDAL_CONFIG="/opt/local/bin/gdal-config"
+# Set the default path to gdal-config and allow override via --with-gdal-config
+GDAL_CONFIG="gdal-config"
 
 AC_ARG_WITH([gdal-config],
     AS_HELP_STRING([--with-gdal-config=GDAL_CONFIG],[the location of gdal-config]),
-           [gdal_config=$withval])
-if test [ -n "$gdal_config" ] ; then
-    GDAL_CONFIG_SET="yes"
-    GDAL_CONFIG="${gdal_config}"
-    AC_MSG_NOTICE(gdal-config set to $GDAL_CONFIG)
+           [GDAL_CONFIG=$withval])
+
+if test -n "$GDAL_CONFIG" ; then
+    AC_MSG_NOTICE([Using specified gdal-config: $GDAL_CONFIG])
 else
     AC_PATH_PROG([GDAL_CONFIG], [gdal-config], [no])
 fi
 
-if test ["$GDAL_CONFIG" = "no"] ; then
+if test "$GDAL_CONFIG" = "no" ; then
   AC_MSG_ERROR([gdal-config not found or not executable. Please install GDAL or make sure gdal-config is in your PATH.])
 else
   AC_MSG_NOTICE([gdal-config found: ${GDAL_CONFIG}])
@@ -108,7 +107,7 @@ fi
 AC_MSG_NOTICE([GDAL: ${GDAL_VERSION}])
 
 # Continue with the rest of the script...
-# The rest of your script remains unchanged...
+# You can add additional checks or configurations as needed.
 #GDAL_VER_DOT=`echo $GDAL_VERSION | tr -d "."`
 GDAL_MAJOR=`echo $GDAL_VERSION | cut -f1 -d"."`
 GDAL_MINOR=`echo $GDAL_VERSION | cut -f2 -d"."`
