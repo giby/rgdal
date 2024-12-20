@@ -106,8 +106,16 @@ fi
 
 AC_MSG_NOTICE([GDAL: ${GDAL_VERSION}])
 
-# The rest of the script continues unchanged...
-# Check for PROJ using pkg-config
+# Automatically locate and choose the best proj.pc file
+PKG_CONFIG_PATHS="/opt/local/lib/proj9/lib/pkgconfig /opt/local/lib/proj8/lib/pkgconfig /opt/local/lib/proj5/lib/pkgconfig /usr/local/lib-old/pkgconfig"
+for path in $PKG_CONFIG_PATHS; do
+  if test -f "$path/proj.pc"; then
+    export PKG_CONFIG_PATH="$path"
+    AC_MSG_NOTICE([Using proj.pc from: $path])
+    break
+  fi
+done
+
 PROJ_CONFIG="pkg-config proj"
 
 if `$PROJ_CONFIG --exists` ; then
@@ -125,6 +133,7 @@ PROJ6=""
 if test "${proj_config_ok}" = yes; then
   PROJ_VERSION=`${PROJ_CONFIG} --modversion`
   AC_MSG_NOTICE([PROJ version: ${PROJ_VERSION}])
+
   PROJ_VERSION_DOT=`echo ${PROJ_VERSION} | tr -d "."`
   PROJV1=`echo "${PROJ_VERSION}" | cut -c 1`
 
@@ -136,15 +145,16 @@ if test "${proj_config_ok}" = yes; then
     PKG_CPPFLAGS=""
     PROJ6="no"
   fi
+
 else
   AC_MSG_NOTICE([PROJ version not determined using pkg-config proj])
 fi
 
+
 AC_ARG_WITH([proj-include],
     AS_HELP_STRING([--with-proj-include=DIR],[location of proj header files]),
     [proj_include_path=$withval])
-
-if test -n "$proj_include_path" ; then
+if test [ -n "$proj_include_path" ] ; then
    proj_include_path="-I${proj_include_path}"
    AC_SUBST([PKG_CPPFLAGS],["${PKG_CPPFLAGS} ${proj_include_path} ${INPKG_CPPFLAGS}"])
   if test "${proj_config_ok}" = yes; then
@@ -158,16 +168,17 @@ else
   fi
 fi
 
+# honor PKG_xx overrides
 CPPFLAGS="${INCPPFLAGS} ${PKG_CPPFLAGS}"
 AC_MSG_NOTICE([PROJ CPP flags: ${PKG_CPPFLAGS}])
 PKG_LIBS=""
 PROJ_LIB_PATH=""
-
+          
+# ditto for a library path
 AC_ARG_WITH([proj-lib],
     AS_HELP_STRING([--with-proj-lib=LIB_PATH],[the location of proj libraries]),
                [proj_lib_path=$withval])
-
-if test -n "$proj_lib_path" ; then
+if test [ -n "$proj_lib_path" ] ; then
     AC_SUBST([PKG_LIBS], ["-L${proj_lib_path} ${INPKG_LIBS}"])
   if test "${proj_config_ok}" = yes; then
     AC_MSG_NOTICE([--with-proj-lib= overrides pkg-config proj --libs])
@@ -183,6 +194,7 @@ fi
 
 LIBS="${PKG_LIBS} ${LIBS}"
 AC_MSG_NOTICE([PROJ LIBS: ${PKG_LIBS}])
+
 
 AC_ARG_WITH([proj_api],
     [  --with-proj_api[=ARG]        legacy proj_api.h while still available, or current proj.h (ARG="proj_api.h", "proj.h"(default))],,)
@@ -223,8 +235,8 @@ if test -z ${PROJ_API} ; then
   AC_MSG_NOTICE([API to be used as yet undetermined, searching ...])
   PROJ_VERSION_H=""
   LIBS="${INLIBS} ${PKG_LIBS}"
-  # Check for proj.h
-  cat > proj_conf_test_proj.c <<_EOCONF
+# proj.h case
+[cat > proj_conf_test_proj.c <<_EOCONF
 #include <stdio.h>
 #include <stdlib.h>
 #include <proj.h>
@@ -233,17 +245,16 @@ int main(void) {
     printf("%d.%d.%d\n", PROJ_VERSION_MAJOR, PROJ_VERSION_MINOR, PROJ_VERSION_PATCH);
     exit(0);
 }
-_EOCONF
+_EOCONF]
 
-  if test `${CC} ${CFLAGS} ${PKG_CPPFLAGS} -o proj_conf_test_proj proj_conf_test_proj.c ${PKG_LIBS} 2> /dev/null; echo $?` = 0 ; then
+  if test `${CC} ${CFLAGS} ${PKGCPPFLAGS} -o proj_conf_test_proj proj_conf_test_proj.c ${PKG_LIBS} 2> /dev/null; echo $?` = 0 ; then
     PROJ_API="proj.h"
     PROJ6="yes"
     PROJ_VERSION_H=`./proj_conf_test_proj`
     PROJ_VERSION_DOT=`echo ${PROJ_VERSION_H} | tr -d "."`
-    rm -f proj_conf_test_proj.c proj_conf_test_proj
+rm -f proj_conf_test_proj.c proj_conf_test_proj
   else
-    # Check for proj_api.h
-    cat > proj_conf_test_proj_api.c <<_EOCONF
+[cat > proj_conf_test_proj_api.c <<_EOCONF
 #include <stdio.h>
 #include <stdlib.h>
 #include <proj_api.h>
@@ -252,17 +263,15 @@ int main(void) {
     printf("%d\n", PJ_VERSION);
     exit(0);
 }
-_EOCONF
-
+_EOCONF]
     if test `${CC} ${CFLAGS} ${PKG_CPPFLAGS} -o proj_conf_test_proj_api proj_conf_test_proj_api.c ${PKG_LIBS} 2> /dev/null; echo $?` = 0; then
       PROJ_API="proj_api.h"
       PROJ6="no"
       PROJ_VERSION_H=`./proj_conf_test_proj_api`
       PROJ_VERSION_DOT=`echo ${PROJ_VERSION_H} | tr -d "."`
-      rm -f proj_conf_test_proj_api.c proj_conf_test_proj_api
+rm -f proj_conf_test_proj_api.c proj_conf_test_proj_api
     fi
   fi
-
   if test -z "${PROJ_VERSION_H}"; then
     AC_MSG_ERROR([API to be used not found])
   else
@@ -275,6 +284,7 @@ dnl with the C++ runtime (and rgdal is going to use C++).
 AC_LANG(C++)
 
 if test "${PROJ_API}" =  "proj.h" ; then
+
   if test ${PROJ6} = "yes"; then
     projhok=yes
     AC_CHECK_HEADER([proj.h],,projhok=no)
@@ -287,12 +297,14 @@ if test "${PROJ_API}" =  "proj.h" ; then
       AC_MSG_ERROR([proj_context_create not found in libproj.])
     fi
   fi
+
 fi
 
 if test "${PROJ_API}" =  "proj_api.h"; then
-  LIBS="${INLIBS} ${PKG_LIBS}"
-  AC_MSG_CHECKING(proj_api.h presence and usability)
-  cat > proj_conf_test1.c <<_EOCONF
+
+LIBS="${INLIBS} ${PKG_LIBS}"
+AC_MSG_CHECKING(proj_api.h presence and usability)
+[cat > proj_conf_test1.c <<_EOCONF
 #include <stdio.h>
 #include <stdlib.h>
 #include <proj_api.h>
@@ -301,7 +313,7 @@ int main(void) {
     printf("%d\n", PJ_VERSION);
     exit(0);
 }
-_EOCONF
+_EOCONF]
 
   if test `${CC} ${CFLAGS} ${PKG_CPPFLAGS} -o proj_conf_test1 proj_conf_test1.c ${PKG_LIBS} 2> /dev/null; echo $?` = 0; then
     PROJ_VERSION_H=`./proj_conf_test1`
@@ -318,40 +330,40 @@ _EOCONF
     fi
   fi
 
-  rm -f proj_conf_test1.c proj_conf_test1
+rm -f proj_conf_test1.c proj_conf_test1
 
-  if test -n "${PROJ_VERSION}" ; then
-    AC_MSG_CHECKING([PROJ version agreement])
-    PROJ_VERSION_DOT=`echo ${PROJ_VERSION} | tr -d "."`
-    if test "${PROJ_VERSION_DOT}$" = "${PROJ_VERSION_H}$"; then
-      AC_MSG_RESULT(yes)
-    else
-      AC_MSG_RESULT(no)
-      AC_MSG_ERROR([proj_api.h and pkg-config give different versions])
-    fi
+if test -n "${PROJ_VERSION}" ; then
+  AC_MSG_CHECKING([PROJ version agreement])
+  PROJ_VERSION_DOT=`echo ${PROJ_VERSION} | tr -d "."`
+  if test "${PROJ_VERSION_DOT}$" = "${PROJ_VERSION_H}$"; then
+    AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no)
+    AC_MSG_ERROR([proj_api.h and pkg-config give different versions])
   fi
+fi
+
 fi
 
 if test -z "${PROJ_VERSION_DOT}"; then
   PROJ_VERSION_DOT=`echo ${PROJ_VERSION_H} | tr -d "."`
 fi
-
 NEW_PROJ_WITH_OLD_GDAL="no"
 AC_MSG_CHECKING([Using GDAL < 3 with PROJ >= 6])
 if test ${GDAL_MAJOR} -lt 3 && test ${PROJ_VERSION_DOT} -ge 600; then
-  AC_MSG_RESULT(yes)
-  if test ${PROJ_API} = "proj.h"; then
-    AC_MSG_ERROR([GDAL >= 3 should be used with PROJ >= 6, use --with-proj_api="proj_api.h" for deprecated API])
+    AC_MSG_RESULT(yes)
+    if test ${PROJ_API} = "proj.h"; then
+        AC_MSG_ERROR([GDAL >= 3 should be used with PROJ >= 6, use --with-proj_api="proj_api.h" for deprecated API])
+    else
+        NEW_PROJ_WITH_OLD_GDAL="yes"
+        AC_MSG_WARN([GDAL >= 3 should be used with PROJ >= 6])
+    fi
   else
-    NEW_PROJ_WITH_OLD_GDAL="yes"
-    AC_MSG_WARN([GDAL >= 3 should be used with PROJ >= 6])
-  fi
-else
-  AC_MSG_RESULT(no)
+    AC_MSG_RESULT(no)
 fi
 
 if test "${PROJ6}" = "yes" && test "${PROJ_API}" =  "proj_api.h"; then
-  PKG_CPPFLAGS="${PKG_CPPFLAGS} -DACCEPT_USE_OF_DEPRECATED_PROJ_API_H"
+    PKG_CPPFLAGS="${PKG_CPPFLAGS} -DACCEPT_USE_OF_DEPRECATED_PROJ_API_H"
 fi
 
 AC_MSG_CHECKING([PROJ version >= 4.8.0])
@@ -363,15 +375,16 @@ else
 fi
 
 if test ${PROJ_VERSION_DOT} -lt 493; then
-  if test ${PROJ_VERSION_DOT} = 480 ; then
-    ADDED_PKG_INCL_480=`pwd`"/inst/include"
-    AC_SUBST([PKG_CPPFLAGS],["${PKG_CPPFLAGS} -I${ADDED_PKG_INCL_480}"])
-    proj_include_path="${PKG_CPPFLAGS} -I${ADDED_PKG_INCL_480}"
-    CPPFLAGS="${INCPPFLAGS} ${PKG_CPPFLAGS}"
-  fi
 
-  AC_MSG_CHECKING(projects.h presence and usability)
-  cat > proj_conf_test1a.c <<_EOCONF
+if test ${PROJ_VERSION_DOT} = 480 ; then
+  ADDED_PKG_INCL_480=`pwd`"/inst/include"
+  AC_SUBST([PKG_CPPFLAGS],["${PKG_CPPFLAGS} -I${ADDED_PKG_INCL_480}"])
+  proj_include_path="${PKG_CPPFLAGS} -I${ADDED_PKG_INCL_480}"
+  CPPFLAGS="${INCPPFLAGS} ${PKG_CPPFLAGS}"
+fi
+
+AC_MSG_CHECKING(projects.h presence and usability)
+[cat > proj_conf_test1a.c <<_EOCONF
 #include <stdio.h>
 #include <stdlib.h>
 #include <projects.h>
@@ -379,38 +392,39 @@ if test ${PROJ_VERSION_DOT} -lt 493; then
 int main(void) {
     exit(0);
 }
-_EOCONF
+_EOCONF]
 
-  if test `${CC} ${CFLAGS} ${PKG_CPPFLAGS} -o proj_conf_test1a proj_conf_test1a.c ${PKG_LIBS} 2> /dev/null; echo $?` = 0; then
-    AC_MSG_RESULT(yes)
-  else
-    AC_MSG_RESULT(no)
-    STOP="stop"
-  fi
-  rm -f proj_conf_test1a.c proj_conf_test1a
+if test `${CC} ${CFLAGS} ${PKG_CPPFLAGS} -o proj_conf_test1a proj_conf_test1a.c ${PKG_LIBS} 2> /dev/null; echo $?` = 0; then
+  AC_MSG_RESULT(yes)
+else
+  AC_MSG_RESULT(no)
+  STOP="stop"
+fi
+rm -f proj_conf_test1a.c proj_conf_test1a
 
-  if test "$STOP" = "stop" ; then
+if test "$STOP" = "stop" ; then
     echo "projects.h not found in standard or given locations."
     echo "PROJ 4.8.0 was bundled wrongly, and did not provide"
     echo "the file. A copy is provided in init/include in the source"
     echo "package for the users to place in the same directory"
     echo "as proj_api.h manually."
     exit 1
-  fi
+fi
+
 fi
 
 AC_ARG_WITH([proj-share],
     AS_HELP_STRING([--with-proj-share=SHARE_PATH],[the location of proj metadata files]),
                [proj_share_path=$withval])
-
-if test -n "${proj_share_path}" ; then
+if test [ -n "$proj_share_path" ] ; then
     AC_MSG_NOTICE([PROJ_LIB: ${proj_share_path}])
 fi
 
 if test ${PROJ6} = "no"; then
-  cat > proj_conf_test2.c <<_EOCONF
+
+[cat > proj_conf_test2.c <<_EOCONF
 #include <stdio.h>
 #include <stdlib.h>
 #include <proj_api.h>
 #if PJ_VERSION == 480
-FILE *pj_open_lib(projCtx, const char *,
+FILE *pj
