@@ -22,7 +22,7 @@ void someFunction() {
     // Declare variables
     int i; 
     char **papszCreateOptions = NULL;
-    SEXP sOpts;
+    SEXP sOpts = R_NilValue;
 
     // Your existing code...
     for (i = 0; i < length(sOpts); i++) {
@@ -38,7 +38,7 @@ void anotherFunction() {
     // Declare variables
     int i;
     char **papszOpenOptions = NULL;
-    SEXP sOpts;
+    SEXP sOpts = R_NilValue;
 
     // Your existing code...
     for (i = 0; i < length(sOpts); i++) {
@@ -52,7 +52,7 @@ void yetAnotherFunction() {
     // Declare variables
     int i;
     char **papszAllowedDrivers = NULL;
-    SEXP allowedDr;
+    SEXP allowedDr = R_NilValue;
 
     // Your existing code...
     for (i = 0; i < length(allowedDr); i++) {
@@ -66,7 +66,7 @@ void anotherFunctionAgain() {
     // Declare variables
     int i;
     char **papszCreateOptions = NULL;
-    SEXP sxpOpts;
+    SEXP sxpOpts = R_NilValue;
 
     // Your existing code...
     for (i = 0; i < length(sxpOpts); i++) {
@@ -79,7 +79,7 @@ void anotherFunctionAgain() {
 void yetAnotherFunctionAgain() {
     // Declare variables
     int i;
-    SEXP sxpNames;
+    SEXP sxpNames = R_NilValue;
 
     // Your existing code...
     for (i = 0; i < length(sxpNames); ++i) {
