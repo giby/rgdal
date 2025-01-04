@@ -1,5 +1,11 @@
 #include <R.h>
 #include <Rinternals.h>
+// Undefine the conflicting length macro
+#undef length
+
+#include <cpl_string.h>
+#include <vector>
+#include <locale>
 #include <Rdefines.h>
 
 #include <cpl_string.h>
