@@ -1,3 +1,10 @@
+// gdal-bindings.cpp
+
+#include <Rinternals.h>
+
+// Undefine the conflicting length macro
+#undef length
+
 #include <gdal_priv.h>
 #include <gdal_alg.h>
 #include <gdal_rat.h>
@@ -8,6 +15,25 @@
 #include <cpl_error.h>
 
 #include <gdal_version.h>
+#include <vector>
+#include <locale>
+#include <ogr_api.h>
+#include <ogr_srs_api.h>
+#include <ogr_geometry.h>
+#include <ogrsf_frmts.h>
+
+// Redefine length for R code
+#define length Rf_length
+
+// Rest of your existing code...
+
+void someFunction() {
+    // Your existing code...
+    for (i = 0; i < length(sOpts); i++) 
+        papszCreateOptions = CSLAddString(papszCreateOptions, CHAR(STRING_ELT(sOpts, i)));
+    
+    // More existing code...
+}
 
 // R headers moved outside extern "C" 070808 RSB re. note from BDR
 // #ifdef __cplusplus
