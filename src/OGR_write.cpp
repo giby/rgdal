@@ -6,7 +6,6 @@
 #undef length
 
 #include <cpl_string.h>
-#include "ogrsf_frmts.h"
 #include <vector>
 #include <locale>
 
