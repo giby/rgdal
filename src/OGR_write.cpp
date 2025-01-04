@@ -1,5 +1,17 @@
+// OGR_write.cpp
+
+#include <Rinternals.h>
+
+// Undefine the conflicting length macro
+#undef length
+
 #include <cpl_string.h>
 #include "ogrsf_frmts.h"
+#include <vector>
+#include <locale>
+
+// Redefine length for R code
+#define length Rf_length
 
 // R headers moved outside extern "C" 070808 RSB re. note from BDR
 // #ifdef __cplusplus
