@@ -1,5 +1,17 @@
 #include <R.h>
 #include <Rinternals.h>
+#include <R_ext/Rdynload.h>
+
+extern "C" {
+
+// Your existing function declarations and other code
+
+void R_init_rgdal(DllInfo *dll) {
+    // Register routines, allocate resources, etc.
+    R_useDynamicSymbols(dll, (Rboolean) FALSE);
+}
+
+}
 // Include only C headers here
 #include <stdlib.h>
 #include <string.h>
