@@ -1,0 +1,18 @@
+---
+title: "rgdal"
+author: "Benjamin Leduc"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Example Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+This is an atempt to save the `rgdal` package.
+
+```{r}
+# Example R code
+library(rgdal)
