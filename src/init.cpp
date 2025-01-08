@@ -2,19 +2,114 @@
 #include <Rinternals.h>
 #include <R_ext/Rdynload.h>
 
-extern "C" {
-
-
-
 // Include only C headers here
 #include <stdlib.h>
 #include <string.h>
 #include "rgdal.h"
 
-#include <R_ext/Rdynload.h>
+// Declare the functions you want to expose to R here
+extern "C" {
+    void RGDAL_Init();
+    void RGDAL_Exit();
+    SEXP RGDAL_checkCRSArgs(SEXP);
+    SEXP RGDAL_GetDescription(SEXP);
+    SEXP RGDAL_GDALVersionInfo(SEXP);
+    SEXP RGDAL_GDALCheckVersion();
+    SEXP RGDAL_GDALwithGEOS();
+    SEXP RGDAL_GDAL_DATA_Info();
+    SEXP RGDAL_GetDriverNames();
+    SEXP RGDAL_GetDriver(SEXP);
+    SEXP RGDAL_GetDriverShortName(SEXP);
+    SEXP RGDAL_GetDriverLongName(SEXP);
+    SEXP RGDAL_OpenDataset(SEXP, SEXP, SEXP, SEXP, SEXP);
+    SEXP RGDAL_CloseHandle(SEXP);
+    SEXP RGDAL_CreateDataset(SEXP, SEXP, SEXP, SEXP, SEXP);
+    SEXP RGDAL_GetDatasetDriver(SEXP);
+    SEXP RGDAL_CopyDataset(SEXP, SEXP, SEXP, SEXP, SEXP);
+    SEXP RGDAL_DeleteFile(SEXP, SEXP);
+    SEXP RGDAL_CloseDataset(SEXP);
+    SEXP RGDAL_GetRasterYSize(SEXP);
+    SEXP RGDAL_GetRasterXSize(SEXP);
+    SEXP RGDAL_GetRasterCount(SEXP);
+    SEXP RGDAL_GetProjectionRef(SEXP, SEXP);
+    SEXP RGDAL_PutRasterData(SEXP, SEXP, SEXP);
+    SEXP RGDAL_GetRasterData(SEXP, SEXP, SEXP, SEXP);
+    SEXP RGDAL_GetScale(SEXP);
+    SEXP RGDAL_GetOffset(SEXP);
+    SEXP RGDAL_GetCategoryNames(SEXP);
+    SEXP RGDAL_GetColorTable(SEXP);
+    SEXP RGDAL_GetColorInterp(SEXP);
+    SEXP RGDAL_GetPaletteInterp(SEXP);
+    SEXP RGDAL_GenCMap(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+    SEXP RGDAL_GetRasterBand(SEXP, SEXP);
+    SEXP RGDAL_GetYSize(SEXP);
+    SEXP RGDAL_GetXSize(SEXP);
+    SEXP RGDAL_GetGeoTransform(SEXP);
+    SEXP RGDAL_GetRasterBlockSize(SEXP);
+    SEXP RGDAL_CPLGetConfigOption(SEXP);
+    SEXP RGDAL_CPLSetConfigOption(SEXP, SEXP);
+    SEXP RGDAL_CPL_RECODE_ICONV();
+    SEXP PROJcopyEPSG(SEXP);
+    SEXP RGDAL_ogrInfo(SEXP, SEXP);
+    SEXP R_OGR_types(SEXP, SEXP);
+    SEXP RGDAL_ogrFIDs(SEXP, SEXP);
+    SEXP ogr_GetDriverNames();
+    SEXP ogrP4S(SEXP, SEXP, SEXP, SEXP);
+    SEXP RGDAL_ogrListLayers(SEXP);
+    SEXP ogrDataFrame(SEXP, SEXP, SEXP, SEXP);
+    SEXP R_OGR_CAPI_features(SEXP, SEXP, SEXP);
+    SEXP make_Polygonlist(SEXP, SEXP);
+    SEXP p4s_to_wkt(SEXP, SEXP);
+    SEXP wkt_to_p4s(SEXP, SEXP);
+    SEXP P6_SRID_show(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+    SEXP P6_SRID_proj(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+    SEXP list_coordinate_ops(SEXP, SEXP, SEXP, SEXP, SEXP);
+    SEXP ogrAutoIdentifyEPSG(SEXP);
+    SEXP OGR_write(SEXP);
+    SEXP RGDAL_ogrDeleteLayer(SEXP, SEXP, SEXP);
+    SEXP RGDAL_ogrDeleteDataSource(SEXP, SEXP);
+    SEXP ogrCheckExists(SEXP, SEXP);
+    SEXP R_GDAL_OSR_PROJ();
+    SEXP PROJ4VersionInfo();
+    SEXP PROJ4NADsInstalled();
+    SEXP get_proj_search_path();
+    SEXP get_proj_user_writable_dir();
+    SEXP set_proj_paths(SEXP);
+    SEXP PROJ4_proj_def_dat_Installed();
+    SEXP transform(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+    SEXP transform_ng(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+    SEXP RGDAL_projInfo(SEXP);
+    SEXP RGDAL_project(SEXP, SEXP, SEXP, SEXP, SEXP);
+    SEXP project_inv(SEXP, SEXP, SEXP, SEXP, SEXP);
+    SEXP project_ng(SEXP, SEXP, SEXP, SEXP, SEXP);
+    SEXP project_ng_coordOp(SEXP, SEXP, SEXP, SEXP);
+    SEXP CRS_compare(SEXP, SEXP, SEXP, SEXP);
+    SEXP proj_network_enabled();
+    SEXP enable_proj_network();
+    SEXP disable_proj_network();
+    SEXP get_source_crs(SEXP);
+    SEXP proj_vis_order(SEXP);
+    SEXP OSR_is_projected(SEXP);
+    SEXP RGDAL_SetGeoTransform(SEXP, SEXP);
+    SEXP RGDAL_GetNoDataValue(SEXP);
+    SEXP RGDAL_GetMetadata(SEXP, SEXP);
+    SEXP RGDAL_GetBandType(SEXP);
+    SEXP RGDAL_GetBandStatistics(SEXP, SEXP);
+    SEXP RGDAL_GetBandMinimum(SEXP);
+    SEXP RGDAL_GetBandMaximum(SEXP);
+    SEXP RGDAL_GetRAT(SEXP);
+    SEXP RGDAL_GetBandNoDataValue(SEXP);
+    SEXP RGDAL_SetProject(SEXP, SEXP);
+    SEXP RGDAL_SetProject_WKT2(SEXP, SEXP, SEXP);
+    SEXP RGDAL_SetNoDataValue(SEXP, SEXP);
+    SEXP RGDAL_SetStatistics(SEXP, SEXP);
+    SEXP RGDAL_SetRasterColorTable(SEXP, SEXP, SEXP, SEXP);
+    SEXP RGDAL_SetCategoryNames(SEXP, SEXP);
+    SEXP isGDALObjPtrNULL(SEXP);
+    SEXP rgdal_sp_linkingTo_version();
+}
 
 static R_CallMethodDef CallEntries[] = {
-
     {"RGDAL_Init", (DL_FUNC) &RGDAL_Init, 0},
     {"RGDAL_Exit", (DL_FUNC) &RGDAL_Exit, 0},
     {"RGDAL_checkCRSArgs", (DL_FUNC) &RGDAL_checkCRSArgs, 1},
@@ -29,7 +124,6 @@ static R_CallMethodDef CallEntries[] = {
     {"RGDAL_GetDriverLongName", (DL_FUNC) &RGDAL_GetDriverLongName, 1},
     {"RGDAL_OpenDataset", (DL_FUNC) &RGDAL_OpenDataset, 5},
     {"RGDAL_CloseHandle", (DL_FUNC) &RGDAL_CloseHandle, 1},
-//    {"RGDAL_DeleteHandle", (DL_FUNC) &RGDAL_DeleteHandle, 1},
     {"RGDAL_CreateDataset", (DL_FUNC) &RGDAL_CreateDataset, 5},
     {"RGDAL_GetDatasetDriver", (DL_FUNC) &RGDAL_GetDatasetDriver, 1},
     {"RGDAL_CopyDataset", (DL_FUNC) &RGDAL_CopyDataset, 5},
@@ -118,23 +212,10 @@ static R_CallMethodDef CallEntries[] = {
 };
 
 static const R_CMethodDef CEntries[] = {
-    {NULL, NULL, 0} 
+    {NULL, NULL, 0}
 };
 
-
-void 
-#ifdef HAVE_VISIBILITY_ATTRIBUTE
-__attribute__ ((visibility ("default")))
-#endif
-R_init_rgdal(DllInfo *dll) {
-
-    R_registerRoutines(dll, CEntries, CallEntries, NULL, NULL); 
-    R_useDynamicSymbols(dll, FALSE);
-
-}
 void R_init_rgdal(DllInfo *dll) {
-    // Register routines, allocate resources, etc.
-    R_useDynamicSymbols(dll, (Rboolean) FALSE);
-}
-
+    R_registerRoutines(dll, CEntries, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, static_cast<Rboolean>(FALSE));
 }
