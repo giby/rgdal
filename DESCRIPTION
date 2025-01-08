@@ -24,6 +24,7 @@ License: GPL (>= 2)
 URL: http://rgdal.r-forge.r-project.org, https://gdal.org, https://proj.org, https://r-forge.r-project.org/projects/rgdal/
 SystemRequirements: PROJ (>= 6.0.0, https://proj.org/download.html) and GDAL (>= 2.2.3, https://gdal.org/download.html)
 VignetteBuilder: knitr
+Suggests: knitr, rmarkdown
 Packaged: 2024-12-20 10:08:43 UTC; rsb
 Author: Roger Bivand [cre, aut] (<https://orcid.org/0000-0003-2392-6140>),
   Tim Keitt [aut],
