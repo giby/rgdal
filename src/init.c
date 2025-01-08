@@ -1,5 +1,8 @@
 #include <R.h>
 #include <Rinternals.h>
+// Include only C headers here
+#include <stdlib.h>
+#include <string.h>
 #include "rgdal.h"
 
 #include <R_ext/Rdynload.h>
