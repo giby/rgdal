@@ -10,5 +10,3 @@ CXX_STD=CXX17
 
 %.o: %.c
     $(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
-
-
