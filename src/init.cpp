@@ -1,23 +1,19 @@
 #include <R.h>
 #include <Rinternals.h>
 #include <R_ext/Rdynload.h>
-
-// Include only C headers here
-#include <stdlib.h>
-#include <string.h>
 #include "rgdal.h"
 
 // Declare the functions you want to expose to R here
 extern "C" {
-    void RGDAL_Init();
-    void RGDAL_Exit();
+    SEXP RGDAL_Init(void);
+    SEXP RGDAL_Exit(void);
     SEXP RGDAL_checkCRSArgs(SEXP);
     SEXP RGDAL_GetDescription(SEXP);
     SEXP RGDAL_GDALVersionInfo(SEXP);
-    SEXP RGDAL_GDALCheckVersion();
-    SEXP RGDAL_GDALwithGEOS();
-    SEXP RGDAL_GDAL_DATA_Info();
-    SEXP RGDAL_GetDriverNames();
+    SEXP RGDAL_GDALCheckVersion(void);
+    SEXP RGDAL_GDALwithGEOS(void);
+    SEXP RGDAL_GDAL_DATA_Info(void);
+    SEXP RGDAL_GetDriverNames(void);
     SEXP RGDAL_GetDriver(SEXP);
     SEXP RGDAL_GetDriverShortName(SEXP);
     SEXP RGDAL_GetDriverLongName(SEXP);
@@ -48,12 +44,12 @@ extern "C" {
     SEXP RGDAL_GetRasterBlockSize(SEXP);
     SEXP RGDAL_CPLGetConfigOption(SEXP);
     SEXP RGDAL_CPLSetConfigOption(SEXP, SEXP);
-    SEXP RGDAL_CPL_RECODE_ICONV();
+    SEXP RGDAL_CPL_RECODE_ICONV(void);
     SEXP PROJcopyEPSG(SEXP);
     SEXP RGDAL_ogrInfo(SEXP, SEXP);
     SEXP R_OGR_types(SEXP, SEXP);
     SEXP RGDAL_ogrFIDs(SEXP, SEXP);
-    SEXP ogr_GetDriverNames();
+    SEXP ogr_GetDriverNames(void);
     SEXP ogrP4S(SEXP, SEXP, SEXP, SEXP);
     SEXP RGDAL_ogrListLayers(SEXP);
     SEXP ogrDataFrame(SEXP, SEXP, SEXP, SEXP);
@@ -69,13 +65,13 @@ extern "C" {
     SEXP RGDAL_ogrDeleteLayer(SEXP, SEXP, SEXP);
     SEXP RGDAL_ogrDeleteDataSource(SEXP, SEXP);
     SEXP ogrCheckExists(SEXP, SEXP);
-    SEXP R_GDAL_OSR_PROJ();
-    SEXP PROJ4VersionInfo();
-    SEXP PROJ4NADsInstalled();
-    SEXP get_proj_search_path();
-    SEXP get_proj_user_writable_dir();
+    SEXP R_GDAL_OSR_PROJ(void);
+    SEXP PROJ4VersionInfo(void);
+    SEXP PROJ4NADsInstalled(void);
+    SEXP get_proj_search_path(void);
+    SEXP get_proj_user_writable_dir(void);
     SEXP set_proj_paths(SEXP);
-    SEXP PROJ4_proj_def_dat_Installed();
+    SEXP PROJ4_proj_def_dat_Installed(void);
     SEXP transform(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
     SEXP transform_ng(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
     SEXP RGDAL_projInfo(SEXP);
@@ -84,9 +80,9 @@ extern "C" {
     SEXP project_ng(SEXP, SEXP, SEXP, SEXP, SEXP);
     SEXP project_ng_coordOp(SEXP, SEXP, SEXP, SEXP);
     SEXP CRS_compare(SEXP, SEXP, SEXP, SEXP);
-    SEXP proj_network_enabled();
-    SEXP enable_proj_network();
-    SEXP disable_proj_network();
+    SEXP proj_network_enabled(void);
+    SEXP enable_proj_network(void);
+    SEXP disable_proj_network(void);
     SEXP get_source_crs(SEXP);
     SEXP proj_vis_order(SEXP);
     SEXP OSR_is_projected(SEXP);
@@ -106,7 +102,7 @@ extern "C" {
     SEXP RGDAL_SetRasterColorTable(SEXP, SEXP, SEXP, SEXP);
     SEXP RGDAL_SetCategoryNames(SEXP, SEXP);
     SEXP isGDALObjPtrNULL(SEXP);
-    SEXP rgdal_sp_linkingTo_version();
+    SEXP rgdal_sp_linkingTo_version(void);
 }
 
 static R_CallMethodDef CallEntries[] = {
