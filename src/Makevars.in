@@ -1,12 +1,12 @@
 # Makevars.in
 
-PKG_CPPFLAGS=@PKG_CPPFLAGS@
-PKG_LIBS=@PKG_LIBS@
-CXX_STD=CXX17
+	PKG_CPPFLAGS=@PKG_CPPFLAGS@
+	PKG_LIBS=@PKG_LIBS@
+	CXX_STD=CXX17
 
 # Add rules for compiling .cpp files
 %.o: %.cpp
-    $(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c $< -o $@
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c $< -o $@
 
 %.o: %.c
-    $(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
