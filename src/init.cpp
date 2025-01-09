@@ -214,4 +214,5 @@ static const R_CMethodDef CEntries[] = {
 void R_init_rgdal(DllInfo *dll) {
     R_registerRoutines(dll, CEntries, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, static_cast<Rboolean>(FALSE));
+    Rprintf("rgdal package initialized.\n");
 }
