@@ -1,7 +1,7 @@
 # dnl Process this file with autoconf to produce a configure script.
 define([pkgversion], esyscmd([sh -c "grep Version: DESCRIPTION | cut -d' ' -f2 | tr -d '\n'"]))dnl
 AC_INIT([rgdal],[pkgversion],[Roger.Bivand@nhh.no])
-AC_CONFIG_SRCDIR(src/gdal-bindings.cpp)
+AC_CONFIG_SRCDIR([src/gdal-bindings.cpp])
 
 # find R home and set correct compiler + flags
 : ${R_HOME=`R RHOME`}
@@ -33,7 +33,7 @@ AC_ARG_ENABLE([loadflags],
 
 if test "${loadflags}" = "no" ; then
     LDFLAGS=""
-    AC_MSG_NOTICE(value of R CMD config LDFLAGS not used for configure)
+    AC_MSG_NOTICE([value of R CMD config LDFLAGS not used for configure])
 fi
 AC_MSG_NOTICE([LDFLAGS: ${LDFLAGS}])
 
@@ -56,7 +56,7 @@ else
   HAVE_CXX17=0
 fi
 
-if test [${HAVE_CXX17} = 1] ; then
+if test ${HAVE_CXX17} = 1 ; then
   AC_MSG_NOTICE([C++17 support available])
 else
   AC_MSG_NOTICE([C++17 support not available])
@@ -64,6 +64,7 @@ fi
 
 AC_MSG_NOTICE([${PACKAGE_NAME}: ${PACKAGE_VERSION}])
 
+# Check for svn version
 AC_CHECK_FILE([/usr/bin/svnversion],
  [SVN_VERSION=`svnversion -n '.'`],
  [SVN_VERSION=""])
@@ -254,8 +255,9 @@ fi
 AC_ARG_WITH([proj-share],
     AS_HELP_STRING([--with-proj-share=SHARE_PATH],[the location of proj metadata files]),
                [proj_share_path=$withval])
-if test [ -n "$proj_share_path" ] ; then
+if test -n "$proj_share_path" ; then
     AC_MSG_NOTICE([PROJ LIB: ${proj_share_path}])
+    PROJ_LIBS="${PROJ_LIBS} -L${proj_share_path}"
 fi
 
 # Finalize configuration
@@ -264,5 +266,5 @@ AC_SUBST([PKG_LIBS], ["${PROJ_LIBS} ${GDAL_LIBS} ${GDAL_DEP_LIBS}"])
 AC_MSG_NOTICE([Package CPP flags: ${PKG_CPPFLAGS}])
 AC_MSG_NOTICE([Package LIBS: ${PKG_LIBS}])
 
-AC_CONFIG_FILES(src/Makevars)
+AC_CONFIG_FILES([src/Makevars])
 AC_OUTPUT
