@@ -1,7 +1,7 @@
-# Makevars.in
+# Makevars
 
-PKG_CPPFLAGS=@PKG_CPPFLAGS@
-PKG_LIBS=@PKG_LIBS@
+PKG_CPPFLAGS= -I/opt/local/include -I/opt/local/lib/proj9/include -I/opt/local/include -I/opt/local/libexec/openssl3/include -I/opt/local/include -I/Library/Developer/CommandLineTools/usr/include/c++/v1 -DPROJ_H_API
+PKG_LIBS= -L/opt/local/lib -lgdal -L/opt/local/lib/proj9/lib -lproj
 CXX_STD=CXX17
 
 # Add rules for compiling .cpp files
