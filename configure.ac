@@ -37,13 +37,17 @@ if test "${loadflags}" = "no" ; then
 fi
 AC_MSG_NOTICE([LDFLAGS: ${LDFLAGS}])
 
+# Detect R version
+R_VERSION=`echo 'o <- R.version; cat(paste0(o$major, ".", o$minor))' | ${RBIN} --vanilla --slave`
+R_MINOR=`echo $R_VERSION | cut -f2 -d"."`
+R_MAJOR=`echo $R_VERSION | cut -f1 -d"."`
+
+# Detect C++17 support
 CXX17=`"${RBIN}" CMD config CXX17`
 CXX17STD=`"${RBIN}" CMD config CXX17STD`
-
 AC_MSG_NOTICE([CXX17 is: ${CXX17}, CXX17STD is: ${CXX17STD}])
 
 CXX="${CXX17} ${CXX17STD}"
-
 AC_MSG_NOTICE([CXX is: ${CXX}])
 
 if test -n "${CXX17}"; then
@@ -106,7 +110,56 @@ fi
 
 AC_MSG_NOTICE([GDAL: ${GDAL_VERSION}])
 
-# Add argument to specify the location of proj.pc
+# Check GDAL version compatibility
+GDAL_MAJOR=`echo ${GDAL_VERSION} | cut -d'.' -f1`
+GDAL_MINOR=`echo ${GDAL_VERSION} | cut -d'.' -f2`
+GDAL_PATCH=`echo ${GDAL_VERSION} | cut -d'.' -f3`
+
+if test ${GDAL_MAJOR} = 2 && test ${GDAL_MINOR} -ge 3 ; then
+  AC_MSG_CHECKING([C++11 support for GDAL >= 2.3.0])
+  if test ${HAVE_CXX17} = 1 ; then
+    AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no)
+    AC_MSG_ERROR([provide at least CXX11 compiler support for GDAL >= 2.3.0])
+  fi
+fi
+
+AC_MSG_CHECKING([GDAL version != 3.6.0])
+if test ${GDAL_MAJOR} = 3 && test ${GDAL_MINOR} = 6 && test ${GDAL_PATCH} = 0 ; then
+  AC_MSG_RESULT(no)
+  AC_MSG_ERROR([GDAL 3.6.0 was retracted, use a subsequent version])
+else
+  AC_MSG_RESULT(yes)
+fi
+
+AC_MSG_CHECKING([GDAL version >= 1.11.4])
+if test ${GDAL_MAJOR} -gt 1 ; then
+  AC_MSG_RESULT(yes)
+else
+  if test ${GDAL_MAJOR} = 1 && test ${GDAL_MINOR} = 11 && test ${GDAL_PATCH} -ge 4 ; then
+    AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no)
+    AC_MSG_ERROR([upgrade GDAL to 1.11.4 or later])
+  fi
+fi
+
+AC_MSG_CHECKING([GDAL version <= 2.5 or >= 3.0])
+if test ${GDAL_MAJOR} -lt 2 || test ${GDAL_MAJOR} -gt 2; then
+  AC_MSG_RESULT(yes)
+else
+  if test ${GDAL_MAJOR} = 2; then
+    if test ${GDAL_MINOR} -le 5 ; then
+      AC_MSG_RESULT(yes)
+    else
+      AC_MSG_RESULT(no)
+      AC_MSG_ERROR([GDAL version out of bounds])
+    fi
+  fi
+fi
+
+# Set the default path to proj.pc and allow override via --with-proj-pc
 AC_ARG_WITH([proj-pc],
     AS_HELP_STRING([--with-proj-pc=DIR],[location of proj.pc]),
            [PROJ_PC_DIR=$withval])
